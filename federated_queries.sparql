@@ -1,0 +1,23 @@
+PREFIX charity: <https://ontology.charity.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# ====================================================================
+# connects user conditions to external Wikidata medical information
+# ====================================================================
+
+SELECT ?user ?userName ?condition ?conditionLabel ?wikidataEntity ?wikidataLabel ?description WHERE {
+  ?user a charity:user ;
+        charity:name ?userName ;
+        charity:hasCondition ?condition .
+
+  ?condition rdfs:label ?conditionLabel .
+
+  ?condition charity:wikidataEquivalent ?wikidataEntity .
+
+  SERVICE <https://query.wikidata.org/sparql> {
+    ?wikidataEntity rdfs:label ?wikidataLabel ;
+                    schema:description ?description .
+    FILTER(LANG(?wikidataLabel) = "en")
+    FILTER(LANG(?description) = "en")
+  }
+}

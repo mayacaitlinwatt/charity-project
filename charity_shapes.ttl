@@ -1,0 +1,194 @@
+@prefix charity: <https://ontology.charity.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ====================================================================
+# Comprehensive SHACL Validation Rules for Charity Ontology
+# ====================================================================
+
+# users with epilepsy must receive services from epilepsy trained staff/volunteers
+charity:epilepsyUserConstraint a sh:NodeShape ;
+    sh:targetClass charity:user ;
+    sh:name "Epilepsy training requirement" ;
+    sh:description "Users with epilepsy condition must receive services from staff/volunteers with epilepsy training" ;
+    sh:sparql [
+        sh:message "User with epilepsy must be served by epilepsy trained staff/volunteers" ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a charity:user ;
+                      charity:hasCondition charity:epilepsy ;
+                      charity:receivesService ?service .
+                ?service charity:deliveredBy ?provider .
+                FILTER NOT EXISTS {
+                    ?provider charity:hasTraining charity:epilepsyTraining .
+                }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# organizations must provide at least one service
+charity:organizationConstraint a sh:NodeShape ;
+    sh:targetClass charity:organization ;
+    sh:name "Organization Service Requirement" ;
+    sh:property [
+        sh:path charity:providesService ;
+        sh:class charity:service ;
+        sh:minCount 1 ;
+        sh:message "Organizations must provide at least one service"
+    ] .
+
+# person name validation - must be non-empty string
+charity:personNameConstraint a sh:NodeShape ;
+    sh:targetNode charity:staff, charity:volunteer, charity:user ;
+    sh:name "Person Name Validation" ;
+    sh:property [
+        sh:path charity:name ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:pattern "^[A-Za-z\\s\\-\\.]+$" ;
+        sh:message "Person names must be 1-100 characters, letters/spaces/hyphens/dots only"
+    ] .
+
+# assignment exclusivity - staff XOR volunteer (not both, not neither)
+charity:assignmentExclusivityConstraint a sh:NodeShape ;
+    sh:targetClass charity:assignment ;
+    sh:name "Assignment Staff/Volunteer Exclusivity" ;
+    sh:xone (
+        [
+            sh:property [
+                sh:path charity:assignedStaff ;
+                sh:minCount 1 ;
+                sh:maxCount 1
+            ] ;
+            sh:property [
+                sh:path charity:assignedVolunteer ;
+                sh:maxCount 0
+            ]
+        ]
+        [
+            sh:property [
+                sh:path charity:assignedVolunteer ;
+                sh:minCount 1 ;
+                sh:maxCount 1
+            ] ;
+            sh:property [
+                sh:path charity:assignedStaff ;
+                sh:maxCount 0
+            ]
+        ]
+    ) ;
+    sh:message "Assignment must have either staff OR volunteer, not both or neither" .
+
+# medication dosage validation
+charity:medicationDosageConstraint a sh:NodeShape ;
+    sh:targetClass charity:medication ;
+    sh:name "Medication Dosage Validation" ;
+    sh:property [
+        sh:path charity:dosage ;
+        sh:datatype xsd:string ;
+        sh:pattern "^\\d+(\\.\\d+)?\\s?(mg|g|ml|tablets?)\\s?(daily|twice daily|three times daily|as needed)$" ;
+        sh:message "Dosage must follow format: number + unit + frequency (e.g., '500mg twice daily')"
+    ] .
+
+# training date validation - must be in the past
+charity:trainingDateConstraint a sh:NodeShape ;
+    sh:targetClass charity:epilepsyTraining, charity:movingAndHandling, charity:safeguarding ;
+    sh:name "Training Date Validation" ;
+    sh:property [
+        sh:path charity:completedDate ;
+        sh:datatype xsd:date ;
+        sh:lessThan charity:expiryDate ;
+        sh:message "Training completion date must be before expiry date and in valid date format"
+    ] .
+
+# service capacity limits
+charity:serviceCapacityConstraint a sh:NodeShape ;
+    sh:targetClass charity:service ;
+    sh:name "Service Capacity Validation" ;
+    sh:property [
+        sh:path charity:maxCapacity ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 100 ;
+        sh:message "Service capacity must be positive integer between 1-100"
+    ] .
+
+# user age validation
+charity:userAgeConstraint a sh:NodeShape ;
+    sh:targetClass charity:user ;
+    sh:name "User Age Validation" ;
+    sh:property [
+        sh:path charity:age ;
+        sh:datatype xsd:positiveInteger ;
+        sh:minInclusive 16 ;
+        sh:maxInclusive 120 ;
+        sh:message "User age must be between 16-120 years"
+    ] .
+
+# email format validation for all persons
+charity:emailConstraint a sh:NodeShape ;
+    sh:targetNode charity:staff, charity:volunteer, charity:user ;
+    sh:name "Email Format Validation" ;
+    sh:property [
+        sh:path charity:email ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Email must be valid format (user@domain.com)"
+    ] .
+
+# training expiry validation - epilepsy training expires after 3 years
+charity:epilepsyTrainingExpiryConstraint a sh:NodeShape ;
+    sh:targetClass charity:epilepsyTraining ;
+    sh:name "Epilepsy Training Expiry Validation" ;
+    sh:sparql [
+        sh:message "Epilepsy training expires 3 years from completion date" ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a charity:epilepsyTraining ;
+                      charity:completedDate ?completed ;
+                      charity:expiryDate ?expiry .
+                FILTER(?expiry != ?completed + "P3Y"^^xsd:duration)
+            }
+        """ ;
+        sh:severity sh:Warning
+    ] .
+
+# medication interaction safety check
+charity:medicationInteractionConstraint a sh:NodeShape ;
+    sh:targetClass charity:user ;
+    sh:name "Medication Interaction Safety" ;
+    sh:sparql [
+        sh:message "User taking multiple epilepsy medications needs medical review" ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a charity:user ;
+                      charity:takesMedication ?med1, ?med2 .
+                ?med1 charity:treatmentFor charity:epilepsy .
+                ?med2 charity:treatmentFor charity:epilepsy .
+                FILTER(?med1 != ?med2)
+            }
+        """ ;
+        sh:severity sh:Info
+    ] .
+
+# service assignment validation - user must be registered
+charity:serviceRegistrationConstraint a sh:NodeShape ;
+    sh:targetClass charity:assignment ;
+    sh:name "Service Registration Validation" ;
+    sh:sparql [
+        sh:message "User must be registered for assigned service" ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this charity:assignedUser ?user ;
+                      charity:assignedService ?service .
+                FILTER NOT EXISTS {
+                    ?user charity:receivesService ?service .
+                }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .

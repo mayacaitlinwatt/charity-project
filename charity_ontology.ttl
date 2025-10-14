@@ -1,0 +1,215 @@
+@prefix charity: <https://ontology.charity.org.uk/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ====================================================================
+# Charity simple mock ontology
+# ====================================================================
+
+charity: a owl:Ontology ;
+    rdfs:label "Charity ontology" ;
+    rdfs:comment "Basic ontology for charity operations" ;
+    owl:versionInfo "1.0.0" .
+
+# ====================================================================
+# core classes
+# ====================================================================
+
+charity:organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A charity organization" .
+
+charity:service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "A service provided by the charity" .
+
+charity:program a owl:Class ;
+    rdfs:label "Program" ;
+    rdfs:comment "A structured program run by the charity" .
+
+charity:person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Any person involved with the charity" .
+
+charity:user a charity:person ;
+    rdfs:label "User" ;
+    rdfs:comment "A person who receives services" .
+
+charity:staff a charity:person ;
+    rdfs:label "Staff" ;
+    rdfs:comment "An employee of the charity" .
+
+charity:volunteer a charity:person ;
+    rdfs:label "Volunteer" ;
+    rdfs:comment "A person who volunteers for the charity" .
+
+charity:assignment a owl:Class ;
+    rdfs:label "Assignment" ;
+    rdfs:comment "An assignment of a staff or volunteer to a user for a specific service at a specific time and date" .
+
+charity:training a owl:Class ;
+    rdfs:label "Training" ;
+    rdfs:comment "A training course offered by the charity, and completed by staff and volunteers" .
+
+charity:epilepsyTraining a charity:training ;
+    rdfs:label "Epilepsy training" ;
+    rdfs:comment "Trained to deliver services to users with epilepsy" .
+
+charity:movingAndHandling a charity:training ;
+    rdfs:label "Moving and handling" ;
+    rdfs:comment "Trained in moving and handling techniques" .
+
+
+charity:condition a owl:Class ;
+    rdfs:label "Conditions" ;
+    rdfs:comment "A medical or psychological condition affecting a user" .
+
+charity:epilepsyCondition a charity:condition ;
+    rdfs:label "Epilepsy condition" ;
+    rdfs:comment "A neurological condition characterized by recurrent seizures" .
+
+charity:location a owl:Class ;
+    rdfs:label "Location" ;
+    rdfs:comment "A physical location where services are provided" .
+
+charity:medication a owl:Class ;
+    rdfs:label "Medication" ;
+    rdfs:comment "A medication or drug used for treatment" .
+
+# ====================================================================
+# object properties
+# ====================================================================
+
+
+charity:receivesService a owl:ObjectProperty ;
+    rdfs:label "Receives service" ;
+    rdfs:comment "Links a user to the services they receive" ;
+    rdfs:domain charity:user ;
+    rdfs:range charity:service .
+
+charity:deliversService a owl:ObjectProperty ;
+    rdfs:label "Delivers service" ;
+    rdfs:comment "Links staff or volunteers to services they deliver" ;
+    rdfs:domain [ owl:unionOf (charity:staff charity:volunteer) ] ;
+    rdfs:range charity:service .
+
+charity:hasTraining a owl:ObjectProperty ;
+    rdfs:label "Has training" ;
+    rdfs:comment "Links staff or volunteers to training they have completed" ;
+    rdfs:domain [ owl:unionOf (charity:staff charity:volunteer) ] ;
+    rdfs:range charity:training .
+
+charity:hasAssignment a owl:ObjectProperty ;
+    rdfs:label "Has the assignment" ;
+    rdfs:comment "Links staff or volunteers to their assignments" ;
+    rdfs:domain [ owl:unionOf (charity:staff charity:volunteer) ] ;
+    rdfs:range charity:assignment .
+
+charity:assignedUser a owl:ObjectProperty ;
+    rdfs:label "Assigned user" ;
+    rdfs:comment "Links an assignment to the user assigned" ;
+    rdfs:domain charity:assignment ;
+    rdfs:range charity:user .
+
+charity:assignedService a owl:ObjectProperty ;
+    rdfs:label "Assigned service" ;
+    rdfs:comment "Links an assignment to the service assigned" ;
+    rdfs:domain charity:assignment ;
+    rdfs:range charity:service .
+
+charity:locatedAt a owl:ObjectProperty ;
+    rdfs:label "Located at" ;
+    rdfs:comment "Links a service to its location" ;
+    rdfs:domain charity:service ;
+    rdfs:range charity:location .
+
+charity:hasCondition a owl:ObjectProperty ;
+    rdfs:label "Has condition" ;
+    rdfs:comment "Links a user to their medical conditions" ;
+    rdfs:domain charity:user ;
+    rdfs:range charity:condition .
+
+charity:treatedWith a owl:ObjectProperty ;
+    rdfs:label "Treated with" ;
+    rdfs:comment "Links a condition to the medication used to treat it" ;
+    rdfs:domain charity:condition ;
+    rdfs:range charity:medication .
+
+charity:wikidataEquivalent a owl:ObjectProperty ;
+    rdfs:label "Wikidata equivalent" ;
+    rdfs:comment "Links to equivalent entity in Wikidata" ;
+    rdfs:domain charity:condition ;
+    rdfs:range owl:Thing .
+
+# ====================================================================
+# data properties
+# ====================================================================
+
+charity:name a owl:DatatypeProperty ;
+    rdfs:label "Name" ;
+    rdfs:comment "The name of something" ;
+    rdfs:range xsd:string .
+
+charity:description a owl:DatatypeProperty ;
+    rdfs:label "Description" ;
+    rdfs:comment "A description of something" ;
+    rdfs:range xsd:string .
+
+charity:email a owl:DatatypeProperty ;
+    rdfs:label "Email" ;
+    rdfs:comment "Email address" ;
+    rdfs:domain charity:person ;
+    rdfs:range xsd:string .
+
+charity:phoneNumber a owl:DatatypeProperty ;
+    rdfs:label "Phone number" ;
+    rdfs:comment "Phone number" ;
+    rdfs:range xsd:string .
+
+charity:address a owl:DatatypeProperty ;
+    rdfs:label "Address" ;
+    rdfs:comment "Physical address" ;
+    rdfs:range xsd:string .
+
+charity:date a owl:DatatypeProperty ;
+    rdfs:label "Date" ;
+    rdfs:comment "A date" ;
+    rdfs:domain charity:assignment ;
+    rdfs:range xsd:date .
+
+charity:time a owl:DatatypeProperty ;
+    rdfs:label "Time" ;
+    rdfs:comment "A time" ;
+    rdfs:domain charity:Assignment ;
+    rdfs:range xsd:time .
+
+charity:jobTitle a owl:DatatypeProperty ;
+    rdfs:label "Job title" ;
+    rdfs:comment "Job title of a staff member" ;
+    rdfs:domain charity:staff ;
+    rdfs:range xsd:string .
+
+charity:completedDate a owl:DatatypeProperty ;
+    rdfs:label "Completed date" ;
+    rdfs:comment "Date when training was completed" ;
+    rdfs:domain charity:training ;
+    rdfs:range xsd:date .
+
+charity:expiryDate a owl:DatatypeProperty ;
+    rdfs:label "Expiry date" ;
+    rdfs:comment "Date when training certification expires" ;
+    rdfs:domain charity:training ;
+    rdfs:range xsd:date .
+
+charity:instructor a owl:DatatypeProperty ;
+    rdfs:label "Instructor" ;
+    rdfs:comment "Name of the training instructor" ;
+    rdfs:domain charity:training ;
+    rdfs:range xsd:string .
+
+charity:certificationNumber a owl:DatatypeProperty ;
+    rdfs:label "Certification number" ;
+    rdfs:comment "Unique certification number for completed training" ;
+    rdfs:domain charity:training ;
+    rdfs:range xsd:string .
