@@ -1,0 +1,98 @@
+@prefix charity: <https://ontology.charity.org.uk/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# the organization
+charity:charityOrganization a charity:organization ;
+    charity:name "Sample charity" ;
+    charity:address "1404 Camden Rd, London N7 0SJ, UK" ;
+    charity:providesService charity:playschemes ,
+                              charity:afterschoolClubs .
+
+# ===================================================================
+# services
+# ===================================================================
+
+charity:playschemes a charity:service ;
+    charity:name "Playschemes" ;
+    charity:description "Holiday and after school enrichment for children" .
+
+charity:afterschoolClubs a charity:service ;
+    charity:name "Afterschool clubs" ;
+    charity:description "After-school activities for children" .
+
+# ===================================================================
+# staff and volunteers
+# ===================================================================
+
+charity:john a charity:staff ;
+    charity:name "John" ;
+    charity:jobTitle "Support worker" ;
+    charity:hasTraining charity:johnEpilepsyTraining2024 , charity:johnMovingHandling2024 ;
+    charity:deliversService charity:playschemes .
+
+charity:james a charity:volunteer ;
+    charity:name "James" ;
+    charity:jobTitle "Volunteer support worker" ;
+    charity:hasTraining charity:jamesEpilepsyTraining2024 , charity:jamesMovingHandling2024 ;
+    charity:deliversService charity:afterschoolClubs .
+
+# ==================================================================
+# training instances
+# ==================================================================
+
+charity:johnEpilepsyTraining2024 a charity:epilepsyTraining ;
+    charity:name "John trained in epilepsy" ;
+    charity:description "Comprehensive epilepsy awareness and seizure response training" ;
+    charity:completedDate "2024-03-15"^^xsd:date ;
+    charity:expiryDate "2026-03-15"^^xsd:date ;
+    charity:instructor "Dr. Sarah Wilson" ;
+    charity:certificationNumber "EPL-2024-001" .
+
+charity:jamesEpilepsyTraining2024 a charity:epilepsyTraining ;
+    charity:name "James trained in epilepsy" ;
+    charity:description "Comprehensive epilepsy awareness and seizure response training" ;
+    charity:completedDate "2024-02-20"^^xsd:date ;
+    charity:expiryDate "2026-02-20"^^xsd:date ;
+    charity:instructor "Dr. Sarah Wilson" ;
+    charity:certificationNumber "EPL-2024-002" .
+
+charity:johnMovingHandling2024 a charity:movingAndHandling ;
+    charity:name "Manual handling training" ;
+    charity:description "Safe moving and handling techniques" ;
+    charity:completedDate "2024-01-10"^^xsd:date ;
+    charity:expiryDate "2025-01-10"^^xsd:date ;
+    charity:instructor "Mark Thompson" ;
+    charity:certificationNumber "MH-2024-001" .
+
+charity:jamesMovingHandling2024 a charity:movingAndHandling ;
+    charity:name "Manual handling training" ;
+    charity:description "Safe moving and handling techniques" ;
+    charity:completedDate "2024-01-15"^^xsd:date ;
+    charity:expiryDate "2025-01-15"^^xsd:date ;
+    charity:instructor "Mark Thompson" ;
+    charity:certificationNumber "MH-2024-002" .
+
+# ===================================================================
+# users
+# ===================================================================
+
+charity:mary a charity:user ;
+    charity:name "Mary" ;
+    charity:receivesService charity:playschemes ;
+    charity:hasCondition charity:maryEpilepsy .
+
+# ===================================================================
+# conditions
+# ===================================================================
+
+# mary
+charity:maryEpilepsy a charity:epilepsyCondition ;
+    charity:name "Mary's epilepsy" ;
+    charity:treatedWith charity:levetiracetam .
+
+# ===================================================================
+# medications
+# ===================================================================
+
+charity:levetiracetam a charity:medication ; 
+    charity:name "Levetiracetam" .
