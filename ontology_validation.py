@@ -1,6 +1,3 @@
-# ontology validation
-
-import rdflib
 from rdflib import Graph, Namespace, RDF, RDFS, OWL
 import sys
 import os
