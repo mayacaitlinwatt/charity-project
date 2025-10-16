@@ -11,15 +11,15 @@ There's also a traditional database implementation with queries in the relationa
 
 - **ontology_validation.py** - Python script using RDFLib for OWL reasoning and validation.
 
-- **charity_data.ttl** - mock data, instantiated using Turtle.
+- **charity_data.ttl** - data, instantiated using Turtle.
 
 - **charity_shapes.ttl** - SHACL shapes for data validation and business rule enforcement.
 
 - **federated_queries.sparql** - federated SPARQL queries connecting information to Wikidata.
 
-- **relational-database/charity_schema.sql** - 3NF-compliant relationsal database schema.
+- **relational-database/charity_schema.sql** - 3NF-compliant relational database schema.
 
-- **relational-database/charity_data.sql** - mock data
+- **relational-database/charity_data.sql** - data.
 
 - **relational-database/charity_queries.sql** - SQL queries for checking data integrity and compliance.
 
